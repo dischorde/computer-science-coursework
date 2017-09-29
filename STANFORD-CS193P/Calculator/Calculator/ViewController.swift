@@ -21,10 +21,35 @@ class ViewController: UIViewController {
             let textCurrentlyInDisplay = display.text!
             display.text = textCurrentlyInDisplay + digit
         } else {
-            display!.text = digit
+            display.text = digit
             userIsInTheMiddleOfTyping = true
         }
         
+    }
+    
+    @IBAction func touchDecimal(_ sender: UIButton) {
+        if userIsInTheMiddleOfTyping {
+            let textCurrentlyInDisplay = display.text!
+            let potentialNewDisplayText = textCurrentlyInDisplay + "."
+            if Double(potentialNewDisplayText) != nil {
+                display.text = potentialNewDisplayText
+            }
+        } else {
+            display.text = "0."
+            userIsInTheMiddleOfTyping = true
+        }
+    }
+    
+    @IBAction func backspace(_ sender: UIButton) {
+        if userIsInTheMiddleOfTyping {
+            var textToBeDisplayed = display.text!
+            textToBeDisplayed.characters.removeLast()
+            if textToBeDisplayed == "" {
+                textToBeDisplayed = "0"
+                userIsInTheMiddleOfTyping = false
+            }
+            display.text = textToBeDisplayed
+        }
     }
     
     var displayValue: Double {
