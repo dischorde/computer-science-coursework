@@ -11,7 +11,7 @@ import Foundation
 struct CalculatorBrain {
     
     private var accumulator: Double?
-    private var sequenceOfOperations = ""
+    private var label = displayLabel()
     
     private enum Operation {
         case constant(Double)
@@ -41,45 +41,50 @@ struct CalculatorBrain {
         if let operation = operations[symbol] {
             switch(operation) {
             case .constant(let value):
+                if !resultIsPending {
+                    label.clear()
+                }
                 accumulator = value
-                sequenceOfOperations = sequenceOfOperations + " " + symbol
+                label.updateNextOperand(with: symbol)
             case .unaryOperation(let function):
                 if accumulator != nil {
                     if resultIsPending {
-                        sequenceOfOperations = sequenceOfOperations + " " + symbol + "(\(accumulator!))"
+                        let nextOperand = symbol + "(\(label.nextOperandToDisplay))"
+                        label.updateNextOperand(with: nextOperand)
+                        label.computeFullSequence()
                     } else {
-                        sequenceOfOperations = symbol + "(\(sequenceOfOperations))"
+                        label.addUnaryOperation(symbol)
                     }
                     accumulator = function(accumulator!)
                 }
             case .binaryOperation(let function):
                 if pendingBinaryOperation != nil {
+                    label.computeFullSequence()
                     performPendingBinaryOperation()
                 }
                 if accumulator != nil {
                     pendingBinaryOperation = PendingBinaryOperation(function: function, firstOperand: accumulator!)
-                    sequenceOfOperations = sequenceOfOperations + " " + symbol
+                    label.addBinaryOperation(symbol)
                     accumulator = nil
                 }
             case .equals:
+                label.computeFullSequence()
                 performPendingBinaryOperation()
             case .clear:
                 pendingBinaryOperation = nil
                 accumulator = 0
-                sequenceOfOperations = ""
+                label.clear()
             }
         }
-        print(sequenceOfOperations)
     }
     
     private mutating func performPendingBinaryOperation() {
         if resultIsPending && accumulator != nil {
-            sequenceOfOperations = sequenceOfOperations + " \(accumulator!)"
             accumulator = pendingBinaryOperation!.perform(with: accumulator!)
             pendingBinaryOperation = nil
         }
     }
-    
+
     private var pendingBinaryOperation: PendingBinaryOperation?
     
     private struct PendingBinaryOperation {
@@ -91,11 +96,45 @@ struct CalculatorBrain {
         }
     }
     
+    private struct displayLabel {
+        var sequenceOfOperations = ""
+        var nextOperandToDisplay = ""
+        
+        mutating func addBinaryOperation(_ symbol: String) {
+            computeFullSequence()
+            sequenceOfOperations = sequenceOfOperations + " " + symbol
+        }
+        
+        mutating func addUnaryOperation(_ symbol: String) {
+            computeFullSequence()
+            sequenceOfOperations = symbol + "(\(sequenceOfOperations))"
+        }
+        
+        mutating func updateNextOperand(with operand: String) {
+            nextOperandToDisplay = operand
+        }
+        
+        mutating func computeFullSequence() {
+            if sequenceOfOperations == "" && nextOperandToDisplay != "" {
+                sequenceOfOperations = nextOperandToDisplay
+            } else if nextOperandToDisplay != "" {
+                sequenceOfOperations = sequenceOfOperations + " " + nextOperandToDisplay
+            }
+            nextOperandToDisplay = ""
+        }
+        
+        mutating func clear() {
+            sequenceOfOperations = ""
+            nextOperandToDisplay = ""
+        }
+    }
+    
     mutating func setOperand(_ operand: Double) {
         accumulator = operand
-        if sequenceOfOperations == "" || !resultIsPending {
-            sequenceOfOperations = String(operand)
+        if !resultIsPending {
+            label.clear()
         }
+        label.updateNextOperand(with: String(format: "%g", operand))
     }
     
     var result: Double? {
@@ -107,6 +146,12 @@ struct CalculatorBrain {
     var resultIsPending: Bool {
         get {
             return pendingBinaryOperation != nil
+        }
+    }
+    
+    var description: String {
+        get {
+            return label.sequenceOfOperations
         }
     }
 }

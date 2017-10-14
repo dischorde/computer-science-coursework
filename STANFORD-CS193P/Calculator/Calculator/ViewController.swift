@@ -11,6 +11,7 @@ import UIKit
 class ViewController: UIViewController {
 
     
+    @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var display: UILabel!
     
     var userIsInTheMiddleOfTyping = false
@@ -24,6 +25,7 @@ class ViewController: UIViewController {
             display.text = digit
             userIsInTheMiddleOfTyping = true
         }
+        updateDescriptionLabel()
         
     }
     
@@ -38,6 +40,7 @@ class ViewController: UIViewController {
             display.text = "0."
             userIsInTheMiddleOfTyping = true
         }
+        updateDescriptionLabel()
     }
     
     @IBAction func backspace(_ sender: UIButton) {
@@ -50,6 +53,7 @@ class ViewController: UIViewController {
             }
             display.text = textToBeDisplayed
         }
+        updateDescriptionLabel()
     }
     
     var displayValue: Double {
@@ -57,11 +61,12 @@ class ViewController: UIViewController {
             return Double(display.text!)!
         }
         set {
-            display.text = String(newValue)
+            display.text = String(format: "%g", newValue)
         }
     }
     
     private var brain: CalculatorBrain = CalculatorBrain()
+    
     
     @IBAction func performOperation(_ sender: UIButton) {
         if userIsInTheMiddleOfTyping {
@@ -73,6 +78,17 @@ class ViewController: UIViewController {
         }
         if let result = brain.result {
             displayValue = result
+        }
+        updateDescriptionLabel()
+    }
+    
+    func updateDescriptionLabel() {
+        if brain.resultIsPending {
+            descriptionLabel.text = brain.description + "..."
+        } else if brain.description != "" {
+            descriptionLabel.text = brain.description + " = "
+        } else {
+            descriptionLabel.text = ""
         }
     }
 }
