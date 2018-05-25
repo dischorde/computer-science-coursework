@@ -24,6 +24,8 @@ class ViewController: UIViewController {
     
     @IBOutlet var cardButtons: [UIButton]!
     
+    @IBOutlet weak var newGameButton: UIButton!
+    
     @IBAction func touchCard(_ sender: UIButton) {
         if let cardNumber = cardButtons.index(of: sender) {
             game.chooseCard(at: cardNumber)
@@ -37,9 +39,17 @@ class ViewController: UIViewController {
         updateViewFromModel()
     }
     
+    override func viewDidLoad() {
+        self.view.backgroundColor = currentTheme.backgroundColor
+        newGameButton.backgroundColor = currentTheme.primaryColor
+        updateViewFromModel()
+    }
+    
     func updateViewFromModel() {
         flipCountLabel.text = "Flips: \(game.flipCount)"
         scoreLabel.text = "Score: \(game.score)"
+        self.view.backgroundColor = currentTheme.backgroundColor
+         newGameButton.backgroundColor = currentTheme.primaryColor
         for index in cardButtons.indices {
             let button = cardButtons[index]
             let card = game.cards[index]
@@ -63,7 +73,7 @@ class ViewController: UIViewController {
     }
     
     func backgroundColor(for card: Card, at index: Array<Card>.Index) -> UIColor {
-       let color = [0, 2, 5, 7, 8, 10, 13, 15].contains(Int(index)) ? #colorLiteral(red: 1, green: 0.6729367971, blue: 0.6634342074, alpha: 1) : #colorLiteral(red: 1, green: 0.667937696, blue: 0.4736554623, alpha: 1)
+       let color = [0, 2, 5, 7, 8, 10, 13, 15].contains(Int(index)) ? currentTheme.primaryColor : currentTheme.accentColor
        return card.isMatched ? #colorLiteral(red: 0.846742928, green: 0.1176741496, blue: 0, alpha: 0) : color
     }
     
@@ -78,18 +88,20 @@ class ViewController: UIViewController {
     }
     
     var themes = [
-        GameTheme.init(name: "oldMacDonald", emojis: ["🐷","🐮","🐔","🐰", "🐭", "🐴", "🐱", "🐶", "🐤"]),
-        GameTheme.init(name: "underTheSea", emojis: ["🦑","🐋","🐙","🦀", "🐡", "🐟", "🦐", "🐚", "⚓️", "🐠","🐬", "🐳", "🌊", "🚢", "⛴", "🛳", "🦈"]),
-        GameTheme.init(name: "natureGarden", emojis: ["🌿","🍄","🌻","🍁", "🌳", "🌱", "🌾", "🌸", "🌞", "🌴", "🍃", "🍂"]),
-        GameTheme.init(name: "island", emojis: ["🏝","🌺","🐠","🐬", "⛵️", "🍍", "🍹", "⛱", "🦀", "🥥", "🐢", "👙", "🌋"]),
-        GameTheme.init(name: "fruitNinja", emojis: ["🍋","🍉","🍇","🥝", "🥥", "🍑", "🍓", "🍊", "🍐", "🍌", "🍎", "🍏"]),
-        GameTheme.init(name: "desertWest", emojis: ["🌵","🏜","🐴","☀️", "🔥", "🍳", "🐍", "💀", "💨"])
+        GameTheme.init(name: "oldMacDonald", emojis: ["🐷","🐮","🐔","🐰", "🐭", "🐴", "🐱", "🐶", "🐤"], backgroundColor: #colorLiteral(red: 0.8374180198, green: 0.8374378085, blue: 0.8374271393, alpha: 1), primaryColor: #colorLiteral(red: 0.4620226622, green: 0.8382837176, blue: 1, alpha: 1), accentColor: #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)),
+        GameTheme.init(name: "underTheSea", emojis: ["🦑","🐋","🐙","🦀", "🐡", "🐟", "🦐", "🐚", "⚓️", "🐠","🐬", "🐳", "🌊", "🚢", "⛴", "🛳", "🦈"], backgroundColor: #colorLiteral(red: 0, green: 0.2684682608, blue: 0.4762560725, alpha: 1), primaryColor:#colorLiteral(red: 0.4699950814, green: 0.6678406, blue: 0.8381099105, alpha: 1), accentColor: #colorLiteral(red: 0.2199882269, green: 0.8307816982, blue: 0.8380283117, alpha: 1)),
+        GameTheme.init(name: "natureGarden", emojis: ["🌿","🍄","🌻","🍁", "🌳", "🌱", "🌾", "🌸", "🌞", "🌴", "🍃", "🍂"], backgroundColor: #colorLiteral(red: 0.2516767979, green: 0.4673609138, blue: 0.2600513697, alpha: 1), primaryColor:#colorLiteral(red: 0.4690613151, green: 0.6526823044, blue: 0.2587630153, alpha: 1), accentColor: #colorLiteral(red: 0.4692698717, green: 0.6561034322, blue: 0.4752988815, alpha: 1)),
+        GameTheme.init(name: "island", emojis: ["🏝","🌺","🐠","🐬", "⛵️", "🍍", "🍹", "⛱", "🦀", "🥥", "🐢", "👙", "🌋"], backgroundColor: #colorLiteral(red: 0.6590628028, green: 0.8345142603, blue: 0.8376920223, alpha: 1), primaryColor: #colorLiteral(red: 1, green: 0.6729367971, blue: 0.6634342074, alpha: 1), accentColor: #colorLiteral(red: 1, green: 0.667937696, blue: 0.4736554623, alpha: 1)),
+        GameTheme.init(name: "fruitNinja", emojis: ["🍋","🍉","🍇","🥝", "🥥", "🍑", "🍓", "🍊", "🍐", "🍌", "🍎", "🍏"], backgroundColor: #colorLiteral(red: 0.8412034512, green: 0.6681704521, blue: 0.6638730168, alpha: 1), primaryColor: #colorLiteral(red: 0.8459790349, green: 0.2873021364, blue: 0.2579272389, alpha: 1), accentColor: #colorLiteral(red: 0.8467822075, green: 0.127263248, blue: 0.2581181526, alpha: 1)),
+        GameTheme.init(name: "desertWest", emojis: ["🌵","🏜","🐴","☀️", "🔥", "🍳", "🐍", "💀", "💨"], backgroundColor: #colorLiteral(red: 1, green: 0.8323456645, blue: 0.4732058644, alpha: 1), primaryColor: #colorLiteral(red: 1, green: 0.4883337617, blue: 0.2560397685, alpha: 1), accentColor: #colorLiteral(red: 0.8409169316, green: 0.6583849192, blue: 0, alpha: 1)),
     ]
 }
 
 struct GameTheme {
     var name: String
     var emojis: [String]
-    // could add colors here for the first extra credit item
+    var backgroundColor: UIColor
+    var primaryColor: UIColor
+    var accentColor: UIColor
 }
 
