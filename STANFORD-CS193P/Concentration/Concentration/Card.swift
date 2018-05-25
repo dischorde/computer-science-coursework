@@ -24,4 +24,8 @@ struct Card
     init() {
         self.identifier = Card.getUniqueIdentifier()
     }
+    
+    func doesMatch(_ otherCard: Card) -> Bool {
+        return identifier == otherCard.identifier
+    }
 }

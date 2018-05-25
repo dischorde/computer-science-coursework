@@ -7,10 +7,14 @@
 //
 
 import Foundation
+import GameplayKit.GKRandomSource
 
 class Concentration
 {
     var cards = [Card]()
+    var flipCount = 0
+    var score = 0
+    var previouslySeenIndexes = Set<Int>()
     
     var indexOfOneAndOnlyFaceUpCard: Int?
     
@@ -19,25 +23,38 @@ class Concentration
             let card = Card()
             cards += [card, card]
         }
-        // TODO: shuffle the cards
+        cards = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: cards) as! [Card]
     }
     
     func chooseCard(at index: Int) {
-        if !cards[index].isMatched {
-            if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
-                if cards[matchIndex].identifier == cards[index].identifier {
-                    cards[matchIndex].isMatched = true
-                    cards[index].isMatched = true
-                }
-                cards[index].isFaceUp = true
-                indexOfOneAndOnlyFaceUpCard = nil
-            } else {
-                for flipDownIndex in cards.indices {
-                    cards[flipDownIndex].isFaceUp = false
-                }
-                cards[index].isFaceUp = true
-                indexOfOneAndOnlyFaceUpCard = index
+        guard !cards[index].isMatched else { return } // return if card is already matched
+
+        flipCount += 1
+
+        if let matchIndex = indexOfOneAndOnlyFaceUpCard, matchIndex != index {
+            if cards[matchIndex].doesMatch(cards[index]) {
+                cards[matchIndex].isMatched = true
+                cards[index].isMatched = true
+                score += 2
+            } else if previouslySeenIndexes.contains(index) && previouslySeenIndexes.contains(matchIndex) {
+                score -= 2
+            } else if previouslySeenIndexes.contains(index) || previouslySeenIndexes.contains(matchIndex) {
+                score -= 1
             }
+            cards[index].isFaceUp = true
+            indexOfOneAndOnlyFaceUpCard = nil
+            previouslySeenIndexes.insert(index)
+            previouslySeenIndexes.insert(matchIndex)
+        } else {
+            flipEverythingFaceDown()
+            cards[index].isFaceUp = true
+            indexOfOneAndOnlyFaceUpCard = index
+        }
+    }
+    
+    func flipEverythingFaceDown() {
+        for flipDownIndex in cards.indices {
+            cards[flipDownIndex].isFaceUp = false
         }
     }
 }
